@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>שוקי – רשימת קניות</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,13 +36,14 @@
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Assistant",system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;min-height:100vh}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Assistant",system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;min-height:100%}
+html{height:100%}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 svg{display:block}
-.app{max-width:640px;margin:0 auto;min-height:100vh;background:var(--surface);position:relative}
+.app{max-width:640px;margin:0 auto;min-height:100%;background:var(--surface);position:relative}
 
 /* app bar */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--brand);color:var(--brand-ink);height:60px;display:flex;align-items:center;gap:4px;padding:0 8px}
@@ -135,7 +136,8 @@ svg{display:block}
 .offline{background:#5B6470;color:#fff;font-size:14px;padding:6px 14px;text-align:center}
 .loading{padding:56px 32px;text-align:center;color:var(--muted)}
 .row-tool.shared{color:var(--brand)}
-.sheet{max-height:88vh;overflow-y:auto}
+.sheet{max-height:calc(100% - 40px);overflow-y:auto}
+.toolrow .warn{color:var(--danger);font-weight:600}
 .sheet .sub{margin:-8px 0 16px;color:var(--muted);font-size:15px}
 .code-box{background:var(--brand-soft);border-radius:16px;padding:16px;text-align:center;margin-bottom:12px}
 .code-big{font-size:38px;font-weight:700;letter-spacing:.18em;direction:ltr;font-variant-numeric:tabular-nums;color:var(--ink);user-select:all}
@@ -496,7 +498,7 @@ function fillHome(){
   const body = $('#homeBody');
   if(!ready){ body.innerHTML = authFailed ? '<div class="empty"><strong>אין חיבור לשרת</strong>בדקו את החיבור לאינטרנט ופתחו את האפליקציה שוב</div>' : '<div class="loading">טוען את הרשימות…</div>'; return; }
   const ids = listIds();
-  if(!ids.length){ body.innerHTML = `<div class="empty"><strong>אין עדיין רשימות</strong>לחצו על + כדי ליצור רשימה, או על סמל ההצטרפות כדי להיכנס לרשימה ששיתפו איתכם</div>`; return; }
+  if(!ids.length){ body.innerHTML = `<div class="empty"><strong>אין עדיין רשימות</strong>לחצו על + כדי ליצור רשימה, או על סמל ההצטרפות עם הפלוס כדי להיכנס לרשימה ששיתפו איתכם</div>`; return; }
   body.innerHTML = `<ul class="lists">${ids.map(id => { const L = LISTS[id]; const n = activeOf(L).length, m = memberCount(L);
     return `<li class="list-row" data-id="${id}">
       <button class="list-open" data-open><span class="list-name">${esc(L.meta.name)}</span>
@@ -616,7 +618,9 @@ function fillList(id){
   $('#title').textContent = L.meta.name;
   const shared = memberCount(L) > 1; $('#shareTop').style.opacity = shared ? '1' : '.75';
   const act = activeOf(L), tk = takenOf(L), open = !!ui.takenOpen[id];
-  $('#count').textContent = act.length ? countLabel(act.length) + ' לקנות' : 'אין מה לקנות';
+  const cnt = $('#count');
+  if(Date.now() < warnUntil){ cnt.textContent = warnText; cnt.className = 'warn'; }
+  else { cnt.textContent = act.length ? countLabel(act.length) + ' לקנות' : ''; cnt.className = ''; }
   $('#undo').disabled = !(undoStacks[id] && undoStacks[id].length);
   $('#listBody').innerHTML = `
     ${act.length ? `<ul class="items" id="items">${act.map(it => `
@@ -637,12 +641,15 @@ function fillList(id){
         </li>`).join('')}</ul>` : ''}` : ''}`;
   if(freshId){ const r = document.querySelector(`#items .item[data-id="${freshId}"]`); if(r) r.classList.add('fresh'); freshId = null; }
 }
-let freshId = null;
+let freshId = null, warnUntil = 0, warnText = '';
+function warnInline(text){ warnText = text; warnUntil = Date.now() + 2500; scheduleRender(); setTimeout(scheduleRender, 2600); }
 function addItem(id, inp){
   const L = LISTS[id]; if(!L) return; const text = norm(inp.value);
   if(!text){ inp.focus(); return; }
-  if(activeOf(L).some(i => norm(i.text) === text)){
-    inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake'); snack('הפריט כבר ברשימה'); return;
+  const dup = activeOf(L).find(i => norm(i.text) === text);
+  if(dup){
+    inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
+    warnInline('הפריט כבר ברשימה'); freshId = dup.id; return;
   }
   const t = takenOf(L).find(i => norm(i.text) === text), now = Cloud.now();
   if(t){
@@ -728,9 +735,14 @@ function cancelInvite(id){
   delete invites[id]; lsSet(INV_KEY, invites);
 }
 function shareText(L, code){
-  let t = `הצטרפות לרשימה ${L.meta.name} באפליקציית שוקי: פותחים את האפליקציה, לוחצים על סמל ההצטרפות ומקלידים את הקוד ${code}. הקוד בתוקף ל-15 דקות.`;
+  let t = `הצטרפות לרשימה ${L.meta.name} באפליקציית שוקי: פותחים את האפליקציה, לוחצים על סמל ההצטרפות עם הפלוס בראש המסך ומקלידים את הקוד ${code}. הקוד בתוקף ל-15 דקות.`;
   if(/^https?:/.test(location.protocol)) t += `\n${location.origin}${location.pathname}#join-${code}`;
   return t;
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }catch(_){}
+  try{ const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; }catch(_){ return false; }
 }
 function fmtLeft(ms){ const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
 async function openShare(id){
@@ -748,8 +760,8 @@ async function openShare(id){
         ${admin ? (inv ? `
           <div class="code-box"><div class="code-big">${inv.code}</div>
             <div class="code-time">בתוקף עוד <span id="left">${fmtLeft(inv.expiresAt - Cloud.now())}</span> דקות</div>
-            <div class="code-actions"><button class="btn primary" data-send>שליחה</button><button class="btn ghost" data-copy>העתקה</button><button class="btn ghost" data-cancelinv>ביטול הקוד</button></div></div>
-          <p class="howto">השותף פותח את שוקי, לוחץ על סמל ההצטרפות בראש המסך הראשי ומקליד את הקוד. אפשר לשלוח את אותו קוד לכמה אנשים.</p>`
+            <div class="code-actions"><button class="btn primary" data-send>שליחה</button><button class="btn ghost" data-copy>העתקת הקוד</button><button class="btn ghost" data-cancelinv>ביטול הקוד</button></div></div>
+          <p class="howto">השותף פותח את שוקי, לוחץ על סמל ההצטרפות עם הפלוס בראש המסך הראשי ומקליד את הקוד. אפשר לשלוח את אותו קוד לכמה אנשים.</p>`
           : `<p class="howto">יוצרים קוד ושולחים אותו למי שרוצים. הקוד בתוקף ל-15 דקות, ומי שמקליד אותו מצטרף לרשימה הזו בלבד.</p>
              <div class="actions"><button class="btn primary" data-create ${full ? 'disabled' : ''}>יצירת קוד שיתוף</button></div>
              ${full ? `<p class="howto">הרשימה הגיעה למקסימום של ${MAX_MEMBERS} משתתפים.</p>` : ''}`)
@@ -758,7 +770,7 @@ async function openShare(id){
         <ul class="members">${mem.map(([m, v]) => { n++; const me = m === uid, owner = L.meta.ownerUid === m;
           const nm = v.name || (me ? 'אני' : `משתתף ${n}`);
           return `<li class="member"><span class="avatar">${esc(nm.slice(0, 1))}</span>
-            <span class="who">${esc(nm)}${me ? ' (אני)' : ''}<br><span class="tag">${v.role === 'admin' ? (owner ? 'יצר את הרשימה' : 'מנהל') : 'משתתף'}</span></span>
+            <span class="who">${esc(nm)}${me && v.name ? ' (אני)' : ''}<br><span class="tag">${v.role === 'admin' ? (owner ? 'יצר את הרשימה' : 'מנהל') : 'משתתף'}</span></span>
             ${me ? `<button class="link-btn" data-myname>שינוי שם</button>` : (admin && !owner ? `<button class="rm" data-rm="${m}">הסרה</button>` : '')}</li>`; }).join('')}</ul>
         ${!isOwner(L) ? `<div class="actions"><button class="btn ghost" data-leave>יציאה מהרשימה</button></div>` : ''}`;
     };
@@ -772,7 +784,7 @@ async function openShare(id){
       const L = LISTS[id]; if(!L) return; const inv = invites[id];
       if(e.target.closest('[data-create]')){ const b = e.target.closest('[data-create]'); b.disabled = true; await ensureName(); await createInvite(id); draw(); }
       else if(e.target.closest('[data-cancelinv]')){ cancelInvite(id); draw(); }
-      else if(e.target.closest('[data-copy]') && inv){ try{ await navigator.clipboard.writeText(shareText(L, inv.code)); snack('ההודעה עם הקוד הועתקה'); }catch(_){ snack('ההעתקה לא הצליחה'); } }
+      else if(e.target.closest('[data-copy]') && inv){ snack(await copyText(inv.code) ? `הקוד ${inv.code} הועתק` : 'ההעתקה לא הצליחה'); }
       else if(e.target.closest('[data-send]') && inv){
         const text = shareText(L, inv.code);
         if(navigator.share){ try{ await navigator.share({ text }); }catch(_){} }
