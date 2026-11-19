@@ -258,7 +258,15 @@ const isOwner = L => !!(L && L.meta && L.meta.ownerUid === uid);
 const memberCount = L => Object.keys((L && L.members) || {}).length;
 
 /* ================= writes ================= */
+const ACTIVE_EVERY = 3600e3, SEEN_EVERY = 12 * 3600e3;
 function write(obj){
+  // activity stamp for future cleanup of abandoned lists (at most once an hour per list)
+  const now = Cloud ? Cloud.now() : Date.now(), touched = new Set();
+  for(const k in obj){ const m = k.match(/^lists\/([^/]+)\/(items|meta)(\/|$)/); if(m) touched.add(m[1]); }
+  touched.forEach(id => {
+    const L = LISTS[id]; if(!L || !L.meta || (`lists/${id}` in obj)) return;
+    if(now - (L.meta.lastActive || 0) > ACTIVE_EVERY){ obj[`lists/${id}/meta/lastActive`] = now; L.meta.lastActive = now; }
+  });
   return authReady.then(() => Cloud.update(obj)).catch(e => {
     console.error(e);
     snack(String(e && e.code || e).includes('PERMISSION') || String(e).includes('permission') ? 'השינוי לא נשמר: אין הרשאה' : 'השינוי לא נשמר');
@@ -312,6 +320,9 @@ function onIndex(v){
     lsSet('shuki.started', true);
   }
   IDX = v;
+  if(Object.keys(v).length && Cloud.now() - lsGet('shuki.lastSeen', 0) > SEEN_EVERY){
+    const t = Cloud.now(); lsSet('shuki.lastSeen', t); write({ [`users/${uid}/lastSeen`]: t }).catch(() => {});
+  }
   Object.keys(watchers).forEach(id => { if(!(id in IDX)){ watchers[id](); delete watchers[id]; delete LISTS[id]; } });
   Object.keys(IDX).forEach(id => { if(!watchers[id]) watchList(id); });
   Object.keys(LISTS).forEach(id => { if(!(id in IDX)) delete LISTS[id]; });
@@ -500,7 +511,7 @@ function createList(name){
   const id = Cloud.key(), t = Cloud.now();
   const orders = Object.values(IDX); const order = orders.length ? Math.max(...orders) + 1 : 0;
   const me = { role:'admin', joinedAt:t }; if(myName) me.name = myName;
-  return write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t }, members:{ [uid]:me } },
+  return write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me } },
                  [`users/${uid}/lists/${id}`]: order }).then(() => id);
 }
 async function newList(){
@@ -510,9 +521,9 @@ async function newList(){
   const id = Cloud.key(), t = Cloud.now();
   const orders = Object.values(IDX); const order = orders.length ? Math.max(...orders) + 1 : 0;
   const me = { role:'admin', joinedAt:t }; if(myName) me.name = myName;
-  write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t }, members:{ [uid]:me } },
+  write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me } },
           [`users/${uid}/lists/${id}`]: order }).catch(() => {});
-  LISTS[id] = LISTS[id] || { meta:{ name, ownerUid:uid, createdAt:t }, members:{ [uid]:me }, items:{} };
+  LISTS[id] = LISTS[id] || { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me }, items:{} };
   location.hash = 'l-' + id;
 }
 async function renameList(id){
