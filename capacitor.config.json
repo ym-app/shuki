@@ -1,0 +1,15 @@
+{
+  "appId": "yonimixx.shuki",
+  "appName": "שוקי",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#2196F3"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}

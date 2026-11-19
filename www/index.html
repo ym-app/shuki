@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>שוקי – רשימת קניות</title>
+ <style>
+@font-face{font-family:"Assistant";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/assistant-hebrew-400-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Assistant";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/assistant-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Assistant";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/assistant-hebrew-600-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Assistant";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/assistant-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Assistant";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/assistant-hebrew-700-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Assistant";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/assistant-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  --brand:#2196F3; --brand-ink:#ffffff; --brand-soft:#E3F1FD;
+  --taken:#2E9D4F; --taken-soft:#E7F5EC;
+  --bg:#F5F7FA; --surface:#FFFFFF; --ink:#16202B; --muted:#6A7684; --line:#E3E8EE;
+  --danger:#D93838; --scrim:rgba(10,20,30,.45); --shadow:0 8px 24px rgba(16,32,48,.18);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --brand:#3A9EF0; --brand-ink:#ffffff; --brand-soft:#16314A;
+    --taken:#46B86A; --taken-soft:#173326;
+    --bg:#0F151C; --surface:#18212B; --ink:#E7ECF2; --muted:#93A0AF; --line:#26323F;
+    --danger:#F26363; --scrim:rgba(0,0,0,.6); --shadow:0 8px 24px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --brand:#3A9EF0; --brand-ink:#ffffff; --brand-soft:#16314A;
+  --taken:#46B86A; --taken-soft:#173326;
+  --bg:#0F151C; --surface:#18212B; --ink:#E7ECF2; --muted:#93A0AF; --line:#26323F;
+  --danger:#F26363; --scrim:rgba(0,0,0,.6); --shadow:0 8px 24px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Assistant",system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;min-height:100%}
+html{height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+svg{display:block}
+.app{max-width:640px;margin:0 auto;min-height:100%;background:var(--surface);position:relative}
+
+/* app bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--brand);color:var(--brand-ink);height:60px;display:flex;align-items:center;gap:4px;padding:0 8px}
+.bar h1{flex:1;margin:0 4px;font-size:21px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.icon-btn:active{background:rgba(255,255,255,.18)}
+.icon-btn svg{width:24px;height:24px}
+.icon-btn[disabled]{opacity:.4;cursor:default}
+
+/* home */
+.lists{list-style:none;margin:0;padding:0}
+.list-row{display:flex;align-items:center;min-height:68px;border-bottom:1px solid var(--line);background:var(--surface);position:relative}
+.list-open{flex:1;min-width:0;text-align:right;padding:12px 18px 12px 4px;display:flex;flex-direction:column}
+.list-name{font-size:19px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-meta{font-size:14px;color:var(--muted)}
+.row-tool{width:44px;height:44px;display:grid;place-items:center;color:var(--muted);flex:none;border-radius:50%}
+.row-tool svg{width:22px;height:22px}
+.handle{touch-action:none;cursor:grab}
+.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:max(24px,calc(50% - 320px + 24px));width:60px;height:60px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;box-shadow:var(--shadow);z-index:6}
+.fab svg{width:28px;height:28px}
+.fab:active{transform:scale(.96)}
+.empty{padding:56px 32px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-size:19px;margin-bottom:4px}
+
+/* list screen */
+.adder{position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px);z-index:4;background:var(--surface);padding:12px 14px 8px;border-bottom:1px solid var(--line)}
+.add-wrap{display:flex;align-items:center;gap:8px}
+.add-input{flex:1;min-width:0;height:48px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;background:var(--bg);font-size:18px;outline:none}
+.add-input:focus{border-color:var(--brand);background:var(--surface)}
+.add-btn{width:48px;height:48px;border-radius:12px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;flex:none}
+.add-btn svg{width:26px;height:26px}
+.toolrow{display:flex;align-items:center;justify-content:space-between;padding-top:6px;color:var(--muted);font-size:15px}
+.undo{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:8px;color:var(--brand);font-weight:600}
+.undo svg{width:20px;height:20px}
+.undo[disabled]{color:var(--muted);opacity:.5;cursor:default}
+.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.items{list-style:none;margin:0;padding:0}
+.item{display:flex;align-items:center;min-height:58px;border-bottom:1px solid var(--line);background:var(--surface)}
+.check{width:52px;height:52px;display:grid;place-items:center;flex:none;margin-right:4px}
+.box{width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;transition:background .15s,border-color .15s}
+.box svg{width:16px;height:16px;stroke:#fff;stroke-width:3;fill:none;stroke-dasharray:24;stroke-dashoffset:24}
+.item.on .box,.item.checking .box{background:var(--taken);border-color:var(--taken)}
+.item.on .box svg{stroke-dashoffset:0}
+.item.checking .box svg{stroke-dashoffset:0;transition:stroke-dashoffset .2s ease-out}
+.item.checking{opacity:0;transform:translateX(-24px);transition:opacity .2s .15s,transform .2s .15s}
+.item-text{flex:1;min-width:0;text-align:right;padding:12px 2px;font-size:18px;word-break:break-word}
+.item.fresh{animation:fresh 1s}
+@keyframes fresh{from{background:var(--brand-soft)}}
+
+.taken-head{display:flex;align-items:center;gap:8px;padding:0 14px;height:52px;background:var(--taken-soft);color:var(--taken);font-weight:700;border-bottom:1px solid var(--line)}
+.taken-toggle{flex:1;display:flex;align-items:center;gap:8px;height:100%;text-align:right}
+.taken-toggle svg{width:20px;height:20px;transition:transform .2s}
+.taken-head.open .taken-toggle svg{transform:rotate(180deg)}
+.taken-clear{font-size:15px;padding:6px 10px;border-radius:8px;color:var(--taken)}
+.taken-note{padding:8px 16px;font-size:14px;color:var(--muted);border-bottom:1px solid var(--line)}
+.item.on .item-text{text-decoration:line-through;color:var(--muted)}
+
+.sorting > *{transition:transform .15s}
+.dragging{transition:none !important;z-index:3;box-shadow:var(--shadow);position:relative;opacity:.97}
+
+/* sheet / dialog */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.sheet{width:100%;max-width:640px;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:up .2s ease-out}
+.sheet h2{margin:0 0 14px;font-size:20px}
+.sheet p{margin:0 0 16px;color:var(--muted)}
+.sheet .add-input{width:100%}
+.sheet .err{color:var(--danger);font-size:14px;min-height:20px;margin-top:4px}
+.actions{display:flex;gap:10px;margin-top:10px}
+.btn{flex:1;height:48px;border-radius:12px;font-weight:700;font-size:17px}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:var(--bg)}
+.btn.danger{background:var(--danger);color:#fff}
+.menu-list{list-style:none;margin:0;padding:0}
+.menu-list button{width:100%;text-align:right;padding:14px 6px;font-size:18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.menu-list li:last-child button{border-bottom:0}
+.menu-list svg{width:22px;height:22px;color:var(--muted)}
+.menu-list .warn,.menu-list .warn svg{color:var(--danger)}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+
+.snack{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);border-radius:12px;padding:12px 16px;display:flex;gap:16px;align-items:center;z-index:30;max-width:calc(100% - 32px);box-shadow:var(--shadow);animation:fade .15s}
+.snack button{color:var(--brand);font-weight:700;filter:brightness(1.25)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+/* stage 2 */
+.bar .icon-btn.on{color:var(--brand-ink)}
+.offline{background:#5B6470;color:#fff;font-size:14px;padding:6px 14px;text-align:center}
+.loading{padding:56px 32px;text-align:center;color:var(--muted)}
+.row-tool.shared{color:var(--brand)}
+.sheet{max-height:calc(100% - 40px);overflow-y:auto}
+.toolrow .warn{color:var(--danger);font-weight:600}
+.sheet .sub{margin:-8px 0 16px;color:var(--muted);font-size:15px}
+.code-box{background:var(--brand-soft);border-radius:16px;padding:16px;text-align:center;margin-bottom:12px}
+.code-big{font-size:38px;font-weight:700;letter-spacing:.18em;direction:ltr;font-variant-numeric:tabular-nums;color:var(--ink);user-select:all}
+.code-time{font-size:14px;color:var(--muted);margin-top:2px}
+.code-actions{display:flex;gap:8px;margin-top:12px}
+.code-actions .btn{height:44px;font-size:16px}
+.howto{font-size:15px;color:var(--muted);margin:0 0 18px}
+.sec-title{font-size:16px;font-weight:700;margin:18px 0 6px}
+.members{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.member{display:flex;align-items:center;gap:10px;min-height:52px;border-bottom:1px solid var(--line)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;flex:none}
+.member .who{flex:1;min-width:0}
+.member .tag{font-size:13px;color:var(--muted)}
+.member .rm{color:var(--danger);font-size:15px;font-weight:600;padding:6px 8px;border-radius:8px}
+.link-btn{color:var(--brand);font-weight:600;font-size:15px;padding:4px 0}
+.code-input{text-align:center;font-size:28px;letter-spacing:.2em;direction:ltr;text-transform:uppercase;height:60px}
+.btn[disabled]{opacity:.5;cursor:default}
+.testbar{display:block;width:100%;background:#FFF4D6;color:#6B4E00;font-size:15px;font-weight:600;padding:10px 14px;text-align:right;border-bottom:1px solid var(--line)}
+.diag{padding:14px 16px 40px}
+.diag h2{font-size:18px;margin:18px 0 8px}
+.diag .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:15px}
+.diag .kv b{color:var(--muted);font-weight:600}
+.diag .card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.diag .card .t{font-weight:700}
+.diag .card .m{font-size:14px;color:var(--muted)}
+.diag .ok{color:var(--taken);font-weight:700}
+.diag .bad{color:var(--danger);font-weight:700}
+.diag pre{direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--bg);border-radius:10px;padding:10px;max-height:320px;overflow:auto}
+</style>
+<script src="vendor/firebase-app-compat.js"></script>
+<script src="vendor/firebase-auth-compat.js"></script>
+<script src="vendor/firebase-database-compat.js"></script>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+(function(){
+'use strict';
+/* ================= config ================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBFfq1gzbZ-lUO9re5575OAJfPsXQrwMPU",
+  authDomain: "shuki-e4980.firebaseapp.com",
+  databaseURL: "https://shuki-e4980.firebaseio.com",
+  projectId: "shuki-e4980",
+  storageBucket: "shuki-e4980.appspot.com",
+  messagingSenderId: "126635375696",
+  appId: "1:126635375696:web:34822c01707a637402a555"
+};
+const DB_URL = 'https://shuki-v2.firebaseio.com';
+const TAKEN_TTL = 48 * 3600e3, INVITE_TTL = 15 * 60e3, MAX_MEMBERS = 10;
+const CACHE_KEY = 'shuki.cache.v2', NAME_KEY = 'shuki.name', INV_KEY = 'shuki.invites', UI_KEY = 'shuki.ui';
+const CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lsGet = (k, d) => { try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } };
+const lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+const norm = s => String(s).trim().replace(/\s+/g, ' ');
+
+const I = {
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  more:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  grip:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-5a6 6 0 0 0 0 12h7"/><path d="M14 3l4 4-4 4"/></svg>',
+  tick:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  sweep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/><path d="M3 21h18"/></svg>',
+  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2c2.3.3 3.9 1.9 4.5 4.8"/></svg>',
+  join:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.4"/><path d="M3.5 20c.7-3.6 3.3-5.6 6.5-5.6 1.6 0 3 .5 4.2 1.4"/><path d="M19 13v6M16 16h6"/></svg>',
+  exit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M9 8l-4 4 4 4M5 12h10"/></svg>'
+};
+
+/* ================= native (Capacitor) ================= */
+const Cap = window.Capacitor;
+const isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+const NativePrefs = isNative ? Cap.registerPlugin('Preferences') : null;
+const NativeShare = isNative ? Cap.registerPlugin('Share') : null;
+if(isNative){ try{ Cap.registerPlugin('SystemBars').setStyle({ bar:'StatusBar', style:'DARK' }); }catch(e){} }
+
+/* ================= cloud layer ================= */
+function firebaseCloud(){
+  const app = firebase.initializeApp(FIREBASE_CONFIG);
+  const auth = app.auth(), db = app.database(DB_URL);
+  let offset = 0;
+  db.ref('.info/serverTimeOffset').on('value', s => { offset = s.val() || 0; });
+  return {
+    start(onUser, onError){
+      auth.onAuthStateChanged(u => {
+        if(u) onUser(u.uid);
+        else auth.signInAnonymously().catch(onError);
+      });
+    },
+    now: () => Date.now() + offset,
+    key: () => db.ref().push().key,
+    on(path, cb, onCancel){
+      const r = db.ref(path);
+      const h = r.on('value', s => cb(s.val()), e => onCancel && onCancel(e));
+      return () => r.off('value', h);
+    },
+    get: path => db.ref(path).get().then(s => s.val()),
+    update: obj => db.ref().update(obj),
+    set: (path, v) => db.ref(path).set(v),
+    connected(cb){ db.ref('.info/connected').on('value', s => cb(!!s.val())); }
+  };
+}
+const Cloud = window.__FAKE_CLOUD || (window.firebase ? firebaseCloud() : null);
+
+/* ================= state ================= */
+let uid = null;
+let authResolve; const authReady = new Promise(r => { authResolve = r; });
+let ready = false;          // first index snapshot arrived
+let IDX = {};               // listId -> order on my home screen
+let LISTS = {};             // listId -> {meta, members, items}
+const watchers = {}, retries = {}, undoStacks = {};
+let authFailed = false;
+let online = true, showOffline = false, offTimer, pendingJoin = null;
+let myName = lsGet(NAME_KEY, '');
+let invites = lsGet(INV_KEY, {});           // listId -> {code, expiresAt}
+const ui = lsGet(UI_KEY, { takenOpen:{} });
+
+(function loadCache(){
+  const c = lsGet(CACHE_KEY, null);
+  if(c && c.idx){ IDX = c.idx; LISTS = c.lists || {}; uid = c.uid; ready = true; }
+})();
+let cacheTimer;
+function saveCache(){ clearTimeout(cacheTimer); cacheTimer = setTimeout(() => lsSet(CACHE_KEY, { uid, idx:IDX, lists:LISTS }), 300); }
+
+const listIds = () => Object.keys(IDX).filter(id => LISTS[id]).sort((a, b) => IDX[a] - IDX[b]);
+const itemsOf = L => Object.entries((L && L.items) || {}).map(([id, v]) => Object.assign({ id }, v));
+const activeOf = L => itemsOf(L).filter(i => !i.done).sort((a, b) => a.order - b.order);
+const takenOf = L => itemsOf(L).filter(i => i.done).sort((a, b) => b.doneAt - a.doneAt);
+const isAdmin = L => !!(L && L.members && L.members[uid] && L.members[uid].role === 'admin');
+const isOwner = L => !!(L && L.meta && L.meta.ownerUid === uid);
+const memberCount = L => Object.keys((L && L.members) || {}).length;
+
+/* ================= writes ================= */
+const ACTIVE_EVERY = 24 * 3600e3, SEEN_EVERY = 24 * 3600e3;
+function write(obj){
+  // activity stamp for future cleanup of abandoned lists (at most once a day per list)
+  const now = Cloud ? Cloud.now() : Date.now(), touched = new Set();
+  for(const k in obj){ const m = k.match(/^lists\/([^/]+)\/(items|meta)(\/|$)/); if(m) touched.add(m[1]); }
+  touched.forEach(id => {
+    const L = LISTS[id]; if(!L || !L.meta || (`lists/${id}` in obj)) return;
+    if(now - (L.meta.lastActive || 0) > ACTIVE_EVERY){ obj[`lists/${id}/meta/lastActive`] = now; L.meta.lastActive = now; }
+  });
+  return authReady.then(() => Cloud.update(obj)).catch(e => {
+    console.error(e);
+    snack(String(e && e.code || e).includes('PERMISSION') || String(e).includes('permission') ? 'השינוי לא נשמר: אין הרשאה' : 'השינוי לא נשמר');
+    throw e;
+  });
+}
+function remember(listId, ids){
+  const L = LISTS[listId], prev = {};
+  ids.forEach(id => { const v = L.items && L.items[id]; prev[id] = v ? JSON.parse(JSON.stringify(v)) : null; });
+  const st = undoStacks[listId] = undoStacks[listId] || [];
+  st.push({ items:prev }); if(st.length > 30) st.shift();
+}
+function rememberName(listId){
+  const st = undoStacks[listId] = undoStacks[listId] || [];
+  st.push({ name:LISTS[listId].meta.name }); if(st.length > 30) st.shift();
+}
+function undo(listId){
+  const st = undoStacks[listId]; if(!st || !st.length) return;
+  const e = st.pop(), up = {};
+  if(e.items) for(const id in e.items) up[`lists/${listId}/items/${id}`] = e.items[id];
+  if(e.name) up[`lists/${listId}/meta/name`] = e.name;
+  write(up).catch(() => {}); scheduleRender();
+}
+const topOrder = L => { const a = activeOf(L); return a.length ? a[0].order - 1 : 0; };
+function between(prev, next){
+  if(prev == null && next == null) return 0;
+  if(prev == null) return next - 1;
+  if(next == null) return prev + 1;
+  return (prev + next) / 2;
+}
+
+/* ================= sync ================= */
+function startSync(){
+  if(!Cloud){ ready = true; scheduleRender(); snack('לא ניתן להתחבר לשרת. בדקו את החיבור ופתחו שוב.'); return; }
+  Cloud.connected(c => { online = c; clearTimeout(offTimer);
+    if(c){ showOffline = false; scheduleRender(); } else offTimer = setTimeout(() => { showOffline = true; scheduleRender(); }, 2500); });
+  Cloud.start(id => {
+    if(uid && uid !== id){ IDX = {}; LISTS = {}; }
+    uid = id; authResolve();
+    if(pendingJoin){ const c = pendingJoin; pendingJoin = null; setTimeout(() => openJoin(c), 300); }
+    Cloud.on(`users/${uid}/lists`, v => onIndex(v || {}), e => console.error('index', e));
+  }, e => { console.error(e); authFailed = true; scheduleRender(); });
+}
+let firstIndex = true;
+function onIndex(v){
+  if(firstIndex){
+    firstIndex = false;
+    if(!Object.keys(v).length && !lsGet('shuki.started', false)){
+      lsSet('shuki.started', true); createList('רשימת קניות'); return;
+    }
+    lsSet('shuki.started', true);
+  }
+  IDX = v;
+  if(Object.keys(v).length && Cloud.now() - lsGet('shuki.lastSeen', 0) > SEEN_EVERY){
+    const t = Cloud.now(); lsSet('shuki.lastSeen', t); write({ [`users/${uid}/lastSeen`]: t }).catch(() => {});
+  }
+  Object.keys(watchers).forEach(id => { if(!(id in IDX)){ watchers[id](); delete watchers[id]; delete LISTS[id]; } });
+  Object.keys(IDX).forEach(id => { if(!watchers[id]) watchList(id); });
+  Object.keys(LISTS).forEach(id => { if(!(id in IDX)) delete LISTS[id]; });
+  ready = true; saveCache(); scheduleRender();
+}
+function watchList(id){
+  let first = true;
+  watchers[id] = Cloud.on(`lists/${id}`, v => {
+    if(v === null){ lost(id); return; }
+    retries[id] = 0;
+    const prev = LISTS[id];
+    if(!first && prev && prev.members) announceJoins(prev, v);
+    first = false;
+    LISTS[id] = { meta:v.meta || {}, members:v.members || {}, items:v.items || {} };
+    if(!v.members || !v.members[uid]){ lost(id); return; }
+    purgeTaken(id); saveCache(); scheduleRender();
+  }, () => {
+    if(watchers[id]) delete watchers[id];
+    if(!first){ lost(id); return; }
+    const n = retries[id] = (retries[id] || 0) + 1;
+    if(n <= 3 && (id in IDX)) setTimeout(() => { if((id in IDX) && !watchers[id]) watchList(id); }, 1500 * n);
+    else lost(id);
+  });
+}
+function lost(id){
+  const name = LISTS[id] && LISTS[id].meta && LISTS[id].meta.name;
+  if(watchers[id]){ watchers[id](); delete watchers[id]; }
+  delete LISTS[id];
+  if(id in IDX){ write({ [`users/${uid}/lists/${id}`]: null }).catch(() => {}); }
+  if(name) snack(`הרשימה ${name} כבר לא זמינה לך`);
+  if(route().id === id) location.hash = '';
+  saveCache(); scheduleRender();
+}
+function announceJoins(prev, next){
+  const before = prev.members || {}, after = next.members || {};
+  for(const m in after) if(!before[m] && m !== uid){
+    snack(`משתתף חדש ברשימה ${next.meta && next.meta.name}: ${after[m].name || 'בלי שם'}`);
+  }
+}
+function purgeTaken(id){
+  const L = LISTS[id], now = Cloud ? Cloud.now() : Date.now(), up = {};
+  takenOf(L).forEach(i => { if(now - i.doneAt > TAKEN_TTL) up[`lists/${id}/items/${i.id}`] = null; });
+  if(Object.keys(up).length) write(up).catch(() => {});
+}
+
+/* ================= ui helpers ================= */
+let snackTimer;
+function snack(text, actionLabel, action){
+  document.querySelectorAll('.snack').forEach(n => n.remove()); clearTimeout(snackTimer);
+  const el = document.createElement('div'); el.className = 'snack'; el.setAttribute('role','status');
+  el.innerHTML = `<span>${esc(text)}</span>` + (actionLabel ? `<button type="button">${esc(actionLabel)}</button>` : '');
+  if(actionLabel) el.querySelector('button').onclick = () => { el.remove(); action(); };
+  document.body.appendChild(el); snackTimer = setTimeout(() => el.remove(), 4500);
+}
+let sheetRefresh = null;
+function sheet(html, setup){
+  const scrim = document.createElement('div'); scrim.className = 'scrim';
+  scrim.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  const close = () => { scrim.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e => { if(e.key === 'Escape') close(); };
+  scrim.addEventListener('click', e => { if(e.target === scrim) close(); });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(scrim); setup(scrim.firstElementChild, close); return close;
+}
+function ask({ title, sub = '', value = '', placeholder = '', ok = 'שמירה', max = 60, check, optional = false }){
+  return new Promise(res => {
+    sheet(`<h2>${esc(title)}</h2>${sub ? `<p class="sub">${esc(sub)}</p>` : ''}<input class="add-input" maxlength="${max}" value="${esc(value)}" placeholder="${esc(placeholder)}"><div class="err"></div>
+      <div class="actions"><button class="btn primary" data-ok>${esc(ok)}</button><button class="btn ghost" data-cancel>${optional ? 'דילוג' : 'ביטול'}</button></div>`,
+    (el, close) => {
+      const inp = $('input', el), err = $('.err', el);
+      const done = () => { const v = norm(inp.value); if(!v && !optional){ err.textContent = 'צריך לכתוב משהו'; return; }
+        const m = v && check && check(v); if(m){ err.textContent = m; return; } close(); res(v); };
+      $('[data-ok]', el).onclick = done; $('[data-cancel]', el).onclick = () => { close(); res(optional ? '' : null); };
+      inp.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); done(); } });
+      setTimeout(() => { inp.focus(); inp.select(); }, 60);
+    });
+  });
+}
+function confirmBox({ title, text, ok }){
+  return new Promise(res => sheet(`<h2>${esc(title)}</h2><p>${esc(text)}</p><div class="actions"><button class="btn danger" data-ok>${esc(ok)}</button><button class="btn ghost" data-cancel>ביטול</button></div>`,
+    (el, close) => { $('[data-ok]', el).onclick = () => { close(); res(true); }; $('[data-cancel]', el).onclick = () => { close(); res(false); }; }));
+}
+function menu(items){
+  sheet(`<ul class="menu-list">${items.map((it, i) => `<li><button data-i="${i}" class="${it.warn ? 'warn' : ''}">${it.icon}<span>${esc(it.label)}</span></button></li>`).join('')}</ul>`,
+    (el, close) => el.querySelectorAll('button').forEach(b => b.onclick = () => { close(); items[+b.dataset.i].run(); }));
+}
+
+/* ================= drag to reorder ================= */
+let dragging = false;
+function sortable(container, rowSel, handleSel, onDrop){
+  container.addEventListener('pointerdown', e => {
+    const h = e.target.closest(handleSel); if(!h || !container.contains(h)) return;
+    const row = h.closest(rowSel); const rows = [...container.querySelectorAll(rowSel)];
+    const from = rows.indexOf(row); if(from < 0) return;
+    e.preventDefault(); dragging = true;
+    const rects = rows.map(r => { const b = r.getBoundingClientRect(); return { top:b.top + scrollY, h:b.height }; });
+    const rh = rects[from].h, startY = e.clientY + scrollY;
+    let to = from, lastY = e.clientY, raf;
+    container.classList.add('sorting'); row.classList.add('dragging');
+    try{ h.setPointerCapture(e.pointerId); }catch(_){}
+    const update = () => {
+      const dy = lastY + scrollY - startY; row.style.transform = `translateY(${dy}px)`;
+      const center = rects[from].top + rh / 2 + dy; let n = 0;
+      rects.forEach((r, j) => { if(j !== from && r.top + r.h / 2 < center) n++; }); to = n;
+      rows.forEach((r, j) => { if(j === from) return; let s = 0;
+        if(from < to && j > from && j <= to) s = -rh; else if(to < from && j >= to && j < from) s = rh;
+        r.style.transform = s ? `translateY(${s}px)` : ''; });
+    };
+    const tick = () => { if(lastY < 140) scrollBy(0, -8); else if(lastY > innerHeight - 70) scrollBy(0, 8);
+      update(); raf = requestAnimationFrame(tick); };
+    const move = ev => { lastY = ev.clientY; };
+    const end = () => { cancelAnimationFrame(raf); h.removeEventListener('pointermove', move);
+      h.removeEventListener('pointerup', end); h.removeEventListener('pointercancel', end);
+      container.classList.remove('sorting'); row.classList.remove('dragging'); rows.forEach(r => r.style.transform = '');
+      dragging = false; if(to !== from) onDrop(from, to); scheduleRender(); };
+    h.addEventListener('pointermove', move); h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
+    raf = requestAnimationFrame(tick);
+  });
+}
+function reorderTo(arr, from, to){ const a = arr.slice(); const [x] = a.splice(from, 1); a.splice(to, 0, x);
+  return { item:x, prev:a[to - 1], next:a[to + 1] }; }
+
+/* ================= routing & render ================= */
+const app = $('#app');
+function route(){
+  const h = location.hash.slice(1);
+  if(h.startsWith('l-')) return { id:h.slice(2) };
+  if(h.startsWith('join-')) return { join:h.slice(5).toUpperCase() };
+  if(h === 'diag') return { diag:true };
+  return {};
+}
+let renderQueued = false, shownRoute = null;
+function scheduleRender(){ if(renderQueued) return; renderQueued = true; requestAnimationFrame(() => { renderQueued = false; render(); }); }
+function render(){
+  if(dragging) return;
+  const r = route();
+  if(r.join){ history.replaceState(null, '', location.pathname + location.search); shownRoute = null; if(uid) setTimeout(() => openJoin(r.join), 100); else pendingJoin = r.join; render(); return; }
+  if(r.id && !LISTS[r.id] && ready && !(r.id in IDX)){ location.hash = ''; return; }
+  if(r.diag){ if(shownRoute !== 'diag'){ shownRoute = 'diag'; buildDiag(); } return; }
+  const key = r.id ? 'l-' + r.id : 'home';
+  if(key !== shownRoute){ shownRoute = key; r.id ? buildList(r.id) : buildHome(); }
+  r.id ? fillList(r.id) : fillHome();
+  const off = $('#offline'); if(off) off.hidden = !showOffline;
+  if(sheetRefresh) sheetRefresh();
+}
+addEventListener('hashchange', () => { document.querySelectorAll('.scrim').forEach(n => n.remove()); sheetRefresh = null; render(); scrollTo(0, 0); });
+
+/* ---------- home ---------- */
+function countLabel(n){ return n === 0 ? 'ריקה' : n === 1 ? 'פריט אחד' : `${n} פריטים`; }
+function buildHome(){
+  document.title = 'שוקי – הרשימות שלי';
+  app.innerHTML = `
+    <header class="bar"><h1>הרשימות שלי</h1>
+      <button class="icon-btn" id="joinBtn" aria-label="הצטרפות לרשימה">${I.join}</button></header>
+    <div class="offline" id="offline" hidden>אין חיבור. השינויים יישלחו כשהחיבור יחזור.</div>
+    <button class="testbar" id="diagBtn">גרסת בדיקה: הצגת הנתונים מהגרסה הישנה</button>
+    <div id="homeBody"></div>
+    <button class="fab" id="fab" aria-label="רשימה חדשה">${I.plus}</button>`;
+  $('#fab').onclick = newList;
+  $('#joinBtn').onclick = () => openJoin('');
+  $('#diagBtn').onclick = () => { location.hash = 'diag'; };
+  const body = $('#homeBody');
+  body.addEventListener('click', e => {
+    const row = e.target.closest('.list-row'); if(!row) return; const id = row.dataset.id;
+    if(e.target.closest('[data-open]')) location.hash = 'l-' + id;
+    else if(e.target.closest('[data-more]')) listMenu(id);
+    else if(e.target.closest('[data-share]')) openShare(id);
+  });
+  sortable(body, '.list-row', '.handle', (a, b) => {
+    const ids = listIds(); const { item, prev, next } = reorderTo(ids, a, b);
+    write({ [`users/${uid}/lists/${item}`]: between(prev != null ? IDX[prev] : null, next != null ? IDX[next] : null) }).catch(() => {});
+  });
+}
+function fillHome(){
+  const body = $('#homeBody');
+  if(!ready){ body.innerHTML = authFailed ? '<div class="empty"><strong>אין חיבור לשרת</strong>בדקו את החיבור לאינטרנט ופתחו את האפליקציה שוב</div>' : '<div class="loading">טוען את הרשימות…</div>'; return; }
+  const ids = listIds();
+  if(!ids.length){ body.innerHTML = `<div class="empty"><strong>אין עדיין רשימות</strong>לחצו על + כדי ליצור רשימה, או על סמל ההצטרפות עם הפלוס כדי להיכנס לרשימה ששיתפו איתכם</div>`; return; }
+  body.innerHTML = `<ul class="lists">${ids.map(id => { const L = LISTS[id]; const n = activeOf(L).length, m = memberCount(L);
+    return `<li class="list-row" data-id="${id}">
+      <button class="list-open" data-open><span class="list-name">${esc(L.meta.name)}</span>
+        <span class="list-meta">${countLabel(n)}${m > 1 ? `, משותפת עם ${m - 1}` : ''}</span></button>
+      <button class="row-tool ${m > 1 ? 'shared' : ''}" data-share aria-label="שיתוף ${esc(L.meta.name)}">${I.people}</button>
+      <button class="row-tool" data-more aria-label="אפשרויות לרשימה ${esc(L.meta.name)}">${I.more}</button>
+      <span class="row-tool handle" aria-label="גרירה לשינוי הסדר">${I.grip}</span>
+    </li>`; }).join('')}</ul>`;
+}
+const nameTaken = (v, except) => listIds().some(id => id !== except && LISTS[id].meta.name === v) ? 'כבר יש רשימה בשם הזה' : null;
+function createList(name){
+  const id = Cloud.key(), t = Cloud.now();
+  const orders = Object.values(IDX); const order = orders.length ? Math.max(...orders) + 1 : 0;
+  const me = { role:'admin', joinedAt:t }; if(myName) me.name = myName;
+  return write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me } },
+                 [`users/${uid}/lists/${id}`]: order }).then(() => id);
+}
+async function newList(){
+  if(!uid){ snack('רגע, מתחברים…'); return; }
+  const name = await ask({ title:'רשימה חדשה', placeholder:'למשל: סופר, פארם', ok:'יצירה', check:v => nameTaken(v) });
+  if(!name) return;
+  const id = Cloud.key(), t = Cloud.now();
+  const orders = Object.values(IDX); const order = orders.length ? Math.max(...orders) + 1 : 0;
+  const me = { role:'admin', joinedAt:t }; if(myName) me.name = myName;
+  write({ [`lists/${id}`]: { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me } },
+          [`users/${uid}/lists/${id}`]: order }).catch(() => {});
+  LISTS[id] = LISTS[id] || { meta:{ name, ownerUid:uid, createdAt:t, lastActive:t }, members:{ [uid]:me }, items:{} };
+  location.hash = 'l-' + id;
+}
+async function renameList(id){
+  const L = LISTS[id];
+  const name = await ask({ title:'שינוי שם', value:L.meta.name, check:v => nameTaken(v, id) });
+  if(!name || name === L.meta.name) return; rememberName(id);
+  write({ [`lists/${id}/meta/name`]: name }).catch(() => {});
+}
+async function deleteList(id){
+  const L = LISTS[id]; const shared = memberCount(L) > 1;
+  const ok = await confirmBox({ title:`למחוק את ${L.meta.name}?`, text: shared ? 'הרשימה תימחק אצל כל המשתתפים.' : 'הרשימה וכל הפריטים שבה יימחקו.', ok:'מחיקה' });
+  if(!ok) return;
+  if(watchers[id]){ watchers[id](); delete watchers[id]; }
+  delete LISTS[id];
+  write({ [`lists/${id}`]: null, [`users/${uid}/lists/${id}`]: null }).catch(() => {});
+  if(location.hash) location.hash = ''; else scheduleRender();
+  snack('הרשימה נמחקה');
+}
+async function leaveList(id){
+  const L = LISTS[id];
+  const ok = await confirmBox({ title:`לצאת מ${L.meta.name}?`, text:'הרשימה תמשיך להתקיים אצל שאר המשתתפים. כדי לחזור תצטרכו קוד חדש.', ok:'יציאה' });
+  if(!ok) return;
+  if(watchers[id]){ watchers[id](); delete watchers[id]; }
+  delete LISTS[id];
+  write({ [`lists/${id}/members/${uid}`]: null, [`users/${uid}/lists/${id}`]: null }).catch(() => {});
+  if(location.hash) location.hash = ''; else scheduleRender();
+  snack('יצאת מהרשימה');
+}
+function listMenu(id){
+  const L = LISTS[id]; if(!L) return;
+  const canDelete = isAdmin(L);
+  menu([
+    { icon:I.people, label: memberCount(L) > 1 ? 'שיתוף ומשתתפים' : 'שיתוף', run:() => openShare(id) },
+    { icon:I.edit, label:'שינוי שם', run:() => renameList(id) },
+    ...(route().id === id && takenOf(L).length ? [{ icon:I.sweep, label:'ניקוי רשימת הנלקחו', run:() => clearTaken(id) }] : []),
+    canDelete ? { icon:I.trash, label:'מחיקת הרשימה', warn:true, run:() => deleteList(id) }
+              : { icon:I.exit, label:'יציאה מהרשימה', warn:true, run:() => leaveList(id) }
+  ]);
+}
+
+/* ---------- list screen ---------- */
+function buildList(id){
+  app.innerHTML = `
+    <header class="bar">
+      <button class="icon-btn" id="back" aria-label="חזרה לרשימות">${I.back}</button>
+      <h1 id="title"></h1>
+      <button class="icon-btn" id="shareTop" aria-label="שיתוף">${I.people}</button>
+      <button class="icon-btn" id="more" aria-label="אפשרויות">${I.more}</button>
+    </header>
+    <div class="offline" id="offline" hidden>אין חיבור. השינויים יישלחו כשהחיבור יחזור.</div>
+    <div class="adder">
+      <div class="add-wrap">
+        <input class="add-input" id="add" maxlength="200" placeholder="הוספת מוצר לרשימה" enterkeyhint="done" autocomplete="off">
+        <button class="add-btn" id="addBtn" aria-label="הוספה">${I.plus}</button>
+      </div>
+      <div class="toolrow"><span id="count"></span>
+        <button class="undo" id="undo">${I.undo}<span>ביטול פעולה</span></button></div>
+    </div>
+    <div id="listBody"></div>`;
+  $('#back').onclick = () => { if(history.length > 1) history.back(); else location.hash = ''; };
+  $('#more').onclick = () => listMenu(id);
+  $('#shareTop').onclick = () => openShare(id);
+  $('#undo').onclick = () => undo(id);
+  const inp = $('#add'); const add = () => addItem(id, inp);
+  $('#addBtn').onclick = add;
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); add(); } });
+  const body = $('#listBody');
+  body.addEventListener('click', e => {
+    const row = e.target.closest('.item');
+    if(row){
+      const itemId = row.dataset.id;
+      if(row.closest('#taken')){ if(e.target.closest('.check')) restoreItem(id, itemId); return; }
+      if(e.target.closest('.check')) checkItem(id, itemId, row);
+      else if(e.target.closest('[data-edit]')) editItem(id, itemId);
+      return;
+    }
+    if(e.target.closest('#takenToggle')){ ui.takenOpen[id] = !ui.takenOpen[id]; lsSet(UI_KEY, ui); scheduleRender(); }
+    else if(e.target.closest('#takenClear')) clearTaken(id);
+  });
+  sortable(body, '#items .item', '.handle', (a, b) => {
+    const L = LISTS[id]; const act = activeOf(L); const { item, prev, next } = reorderTo(act, a, b);
+    remember(id, [item.id]);
+    write({ [`lists/${id}/items/${item.id}/order`]: between(prev && prev.order, next && next.order) }).catch(() => {});
+  });
+}
+function fillList(id){
+  const L = LISTS[id];
+  if(!L){ $('#listBody').innerHTML = '<div class="loading">טוען…</div>'; return; }
+  document.title = `שוקי – ${L.meta.name}`;
+  $('#title').textContent = L.meta.name;
+  const shared = memberCount(L) > 1; $('#shareTop').style.opacity = shared ? '1' : '.75';
+  const act = activeOf(L), tk = takenOf(L), open = !!ui.takenOpen[id];
+  const cnt = $('#count');
+  if(Date.now() < warnUntil){ cnt.textContent = warnText; cnt.className = 'warn'; }
+  else { cnt.textContent = act.length ? countLabel(act.length) + ' לקנות' : ''; cnt.className = ''; }
+  $('#undo').disabled = !(undoStacks[id] && undoStacks[id].length);
+  $('#listBody').innerHTML = `
+    ${act.length ? `<ul class="items" id="items">${act.map(it => `
+      <li class="item" data-id="${it.id}">
+        <button class="check" role="checkbox" aria-checked="false" aria-label="סימון ${esc(it.text)} כנלקח"><span class="box">${I.tick}</span></button>
+        <button class="item-text" data-edit>${esc(it.text)}</button>
+        <span class="row-tool handle" aria-label="גרירה לשינוי הסדר">${I.grip}</span>
+      </li>`).join('')}</ul>` : `<div class="empty"><strong>הרשימה ריקה</strong>כתבו מוצר בשדה למעלה ולחצו Enter</div>`}
+    ${tk.length ? `
+      <div class="taken-head ${open ? 'open' : ''}">
+        <button class="taken-toggle" id="takenToggle" aria-expanded="${open}">${I.chev}<span>נלקחו (${tk.length})</span></button>
+        <button class="taken-clear" id="takenClear">ניקוי</button>
+      </div>
+      ${open ? `<div class="taken-note">פריטים שנלקחו נמחקים לבד אחרי 48 שעות</div><ul class="items" id="taken">${tk.map(it => `
+        <li class="item on" data-id="${it.id}">
+          <button class="check" role="checkbox" aria-checked="true" aria-label="החזרת ${esc(it.text)} לרשימה"><span class="box">${I.tick}</span></button>
+          <span class="item-text">${esc(it.text)}</span>
+        </li>`).join('')}</ul>` : ''}` : ''}`;
+  if(freshId){ const r = document.querySelector(`#items .item[data-id="${freshId}"]`); if(r) r.classList.add('fresh'); freshId = null; }
+}
+let freshId = null, warnUntil = 0, warnText = '';
+function warnInline(text){ warnText = text; warnUntil = Date.now() + 2500; scheduleRender(); setTimeout(scheduleRender, 2600); }
+function addItem(id, inp){
+  const L = LISTS[id]; if(!L) return; const text = norm(inp.value);
+  if(!text){ inp.focus(); return; }
+  const dup = activeOf(L).find(i => norm(i.text) === text);
+  if(dup){
+    inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
+    warnInline('הפריט כבר ברשימה'); freshId = dup.id; return;
+  }
+  const t = takenOf(L).find(i => norm(i.text) === text), now = Cloud.now();
+  if(t){
+    remember(id, [t.id]);
+    write({ [`lists/${id}/items/${t.id}/done`]: null, [`lists/${id}/items/${t.id}/doneAt`]: null,
+            [`lists/${id}/items/${t.id}/order`]: topOrder(L), [`lists/${id}/items/${t.id}/updatedAt`]: now }).catch(() => {});
+    freshId = t.id;
+  } else {
+    const itemId = Cloud.key(); remember(id, [itemId]);
+    write({ [`lists/${id}/items/${itemId}`]: { text, order:topOrder(L), createdAt:now, createdBy:uid } }).catch(() => {});
+    freshId = itemId;
+  }
+  inp.value = ''; inp.focus(); scheduleRender();
+}
+function checkItem(id, itemId, row){
+  const commit = () => { remember(id, [itemId]);
+    write({ [`lists/${id}/items/${itemId}/done`]: true, [`lists/${id}/items/${itemId}/doneAt`]: Cloud.now() }).catch(() => {}); };
+  if(reduced) return commit();
+  row.classList.add('checking'); row.querySelector('.check').setAttribute('aria-checked','true');
+  setTimeout(commit, 360);
+}
+function restoreItem(id, itemId){
+  const L = LISTS[id]; remember(id, [itemId]);
+  write({ [`lists/${id}/items/${itemId}/done`]: null, [`lists/${id}/items/${itemId}/doneAt`]: null,
+          [`lists/${id}/items/${itemId}/order`]: topOrder(L), [`lists/${id}/items/${itemId}/updatedAt`]: Cloud.now() }).catch(() => {});
+}
+function clearTaken(id){
+  const L = LISTS[id]; const tk = takenOf(L); if(!tk.length) return;
+  remember(id, tk.map(i => i.id)); const up = {};
+  tk.forEach(i => up[`lists/${id}/items/${i.id}`] = null);
+  write(up).catch(() => {});
+  snack('רשימת הנלקחו נוקתה', 'ביטול', () => undo(id));
+}
+function editItem(id, itemId){
+  const L = LISTS[id]; const it = L.items[itemId]; if(!it) return;
+  sheet(`<h2>עריכת פריט</h2><input class="add-input" maxlength="200" value="${esc(it.text)}"><div class="err"></div>
+    <div class="actions"><button class="btn primary" data-ok>שמירה</button><button class="btn danger" data-del>מחיקה</button></div>`,
+  (el, close) => {
+    const inp = $('input', el), err = $('.err', el);
+    const ok = () => { const v = norm(inp.value); if(!v){ err.textContent = 'הפריט לא יכול להיות ריק'; return; }
+      if(activeOf(LISTS[id]).some(x => x.id !== itemId && norm(x.text) === v)){ err.textContent = 'הפריט כבר ברשימה'; return; }
+      close(); if(v === it.text) return; remember(id, [itemId]);
+      write({ [`lists/${id}/items/${itemId}/text`]: v, [`lists/${id}/items/${itemId}/updatedAt`]: Cloud.now() }).catch(() => {}); };
+    $('[data-ok]', el).onclick = ok;
+    $('[data-del]', el).onclick = () => { close(); remember(id, [itemId]);
+      write({ [`lists/${id}/items/${itemId}`]: null }).catch(() => {}); snack('הפריט נמחק', 'ביטול', () => undo(id)); };
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); ok(); } });
+    setTimeout(() => inp.focus(), 60);
+  });
+}
+
+/* ================= sharing ================= */
+async function ensureName(){
+  if(myName) return true;
+  const n = await ask({ title:'איך יראו אותך השותפים?', sub:'השם מוצג רק למי שמשתף איתך רשימות. אפשר לדלג.', placeholder:'למשל: אמא, יוני', ok:'שמירה', max:20, optional:true });
+  if(n === null) return false;
+  if(n) setMyName(n);
+  return true;
+}
+function setMyName(n){
+  myName = n; lsSet(NAME_KEY, n); const up = {};
+  listIds().forEach(id => { up[`lists/${id}/members/${uid}/name`] = n; });
+  if(Object.keys(up).length) write(up).catch(() => {});
+}
+function newCode(){
+  const a = new Uint32Array(6); crypto.getRandomValues(a);
+  return Array.from(a, x => CODE_ABC[x % CODE_ABC.length]).join('');
+}
+async function createInvite(id){
+  if(!online){ snack('יצירת קוד דורשת חיבור לאינטרנט'); return; }
+  for(let i = 0; i < 5; i++){
+    const code = newCode(), expiresAt = Cloud.now() + INVITE_TTL - 5000;
+    try{
+      await authReady; await Cloud.set(`invites/${code}`, { listId:id, createdBy:uid, expiresAt });
+      invites[id] = { code, expiresAt }; lsSet(INV_KEY, invites); return;
+    }catch(e){ console.warn('code clash or denied', e); }
+  }
+  snack('לא הצלחנו ליצור קוד. נסו שוב.');
+}
+function cancelInvite(id){
+  const inv = invites[id]; if(!inv) return;
+  Cloud.set(`invites/${inv.code}`, null).catch(() => {});
+  delete invites[id]; lsSet(INV_KEY, invites);
+}
+function shareText(L, code){
+  let t = `הצטרפות לרשימה ${L.meta.name} באפליקציית שוקי: פותחים את האפליקציה, לוחצים על סמל ההצטרפות עם הפלוס בראש המסך ומקלידים את הקוד ${code}. הקוד בתוקף ל-15 דקות.`;
+  if(!isNative && /^https?:/.test(location.protocol)) t += `\n${location.origin}${location.pathname}#join-${code}`;
+  return t;
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }catch(_){}
+  try{ const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; }catch(_){ return false; }
+}
+function fmtLeft(ms){ const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+async function openShare(id){
+  if(!LISTS[id]) return;
+  let timer;
+  sheet('<div id="shareBody"></div>', (el, close) => {
+    const draw = () => {
+      const L = LISTS[id]; if(!L){ close(); return; }
+      const admin = isAdmin(L), mem = Object.entries(L.members || {}).sort((a, b) => a[1].joinedAt - b[1].joinedAt);
+      let inv = invites[id]; if(inv && inv.expiresAt <= Cloud.now()){ delete invites[id]; lsSet(INV_KEY, invites); inv = null; }
+      const full = mem.length >= MAX_MEMBERS;
+      let n = 0;
+      $('#shareBody', el).innerHTML = `
+        <h2>שיתוף: ${esc(L.meta.name)}</h2>
+        ${admin ? (inv ? `
+          <div class="code-box"><div class="code-big">${inv.code}</div>
+            <div class="code-time">בתוקף עוד <span id="left">${fmtLeft(inv.expiresAt - Cloud.now())}</span> דקות</div>
+            <div class="code-actions"><button class="btn primary" data-send>שליחה</button><button class="btn ghost" data-copy>העתקת הקוד</button><button class="btn ghost" data-cancelinv>ביטול הקוד</button></div></div>
+          <p class="howto">השותף פותח את שוקי, לוחץ על סמל ההצטרפות עם הפלוס בראש המסך הראשי ומקליד את הקוד. אפשר לשלוח את אותו קוד לכמה אנשים.</p>`
+          : `<p class="howto">יוצרים קוד ושולחים אותו למי שרוצים. הקוד בתוקף ל-15 דקות, ומי שמקליד אותו מצטרף לרשימה הזו בלבד.</p>
+             <div class="actions"><button class="btn primary" data-create ${full ? 'disabled' : ''}>יצירת קוד שיתוף</button></div>
+             ${full ? `<p class="howto">הרשימה הגיעה למקסימום של ${MAX_MEMBERS} משתתפים.</p>` : ''}`)
+          : `<p class="howto">רק מי שמנהל את הרשימה יכול לצרף אליה אנשים.</p>`}
+        <div class="sec-title">משתתפים (${mem.length})</div>
+        <ul class="members">${mem.map(([m, v]) => { n++; const me = m === uid, owner = L.meta.ownerUid === m;
+          const nm = v.name || (me ? 'אני' : `משתתף ${n}`);
+          return `<li class="member"><span class="avatar">${esc(nm.slice(0, 1))}</span>
+            <span class="who">${esc(nm)}${me && v.name ? ' (אני)' : ''}<br><span class="tag">${v.role === 'admin' ? (owner ? 'יצר את הרשימה' : 'מנהל') : 'משתתף'}</span></span>
+            ${me ? `<button class="link-btn" data-myname>שינוי שם</button>` : (admin && !owner ? `<button class="rm" data-rm="${m}">הסרה</button>` : '')}</li>`; }).join('')}</ul>
+        ${!isOwner(L) ? `<div class="actions"><button class="btn ghost" data-leave>יציאה מהרשימה</button></div>` : ''}`;
+    };
+    sheetRefresh = draw; draw();
+    const offRefresh = () => { if(sheetRefresh === draw) sheetRefresh = null; };
+    timer = setInterval(() => { const L = LISTS[id], inv = invites[id], s = $('#left', el);
+      if(!inv) return; if(inv.expiresAt <= Cloud.now()) draw(); else if(s) s.textContent = fmtLeft(inv.expiresAt - Cloud.now()); }, 1000);
+    const obs = new MutationObserver(() => { if(!el.isConnected){ clearInterval(timer); obs.disconnect(); offRefresh(); } });
+    obs.observe(document.body, { childList:true });
+    el.addEventListener('click', async e => {
+      const L = LISTS[id]; if(!L) return; const inv = invites[id];
+      if(e.target.closest('[data-create]')){ const b = e.target.closest('[data-create]'); b.disabled = true; await ensureName(); await createInvite(id); draw(); }
+      else if(e.target.closest('[data-cancelinv]')){ cancelInvite(id); draw(); }
+      else if(e.target.closest('[data-copy]') && inv){ snack(await copyText(inv.code) ? `הקוד ${inv.code} הועתק` : 'ההעתקה לא הצליחה'); }
+      else if(e.target.closest('[data-send]') && inv){
+        const text = shareText(L, inv.code);
+        if(NativeShare){ try{ await NativeShare.share({ text, dialogTitle:'שליחת הקוד' }); }catch(_){} }
+        else if(navigator.share){ try{ await navigator.share({ text }); }catch(_){} }
+        else open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+      }
+      else if(e.target.closest('[data-rm]')){
+        const m = e.target.closest('[data-rm]').dataset.rm; const nm = (L.members[m] && L.members[m].name) || 'המשתתף';
+        const ok = await confirmBox({ title:`להסיר את ${nm}?`, text:'הרשימה תיעלם אצלו מיד. אפשר לצרף אותו שוב עם קוד חדש.', ok:'הסרה' });
+        if(ok) write({ [`lists/${id}/members/${m}`]: null }).catch(() => {});
+      }
+      else if(e.target.closest('[data-myname]')){
+        close(); const n2 = await ask({ title:'השם שלך', value:myName, max:20, ok:'שמירה' }); if(n2) setMyName(n2); openShare(id);
+      }
+      else if(e.target.closest('[data-leave]')){ close(); leaveList(id); }
+    });
+  });
+}
+async function openJoin(prefill){
+  if(!uid){ snack('רגע, מתחברים…'); return; }
+  sheet(`<h2>הצטרפות לרשימה</h2><p class="sub">מקלידים את הקוד שקיבלתם ממי שמשתף את הרשימה.</p>
+    <input class="add-input code-input" maxlength="6" value="${esc(prefill || '')}" placeholder="קוד" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <div class="err"></div>
+    <div class="actions"><button class="btn primary" data-ok>הצטרפות</button><button class="btn ghost" data-cancel>ביטול</button></div>`,
+  (el, close) => {
+    const inp = $('input', el), err = $('.err', el), btn = $('[data-ok]', el);
+    inp.addEventListener('input', () => { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); err.textContent = ''; });
+    const go = async () => {
+      const code = inp.value.trim().toUpperCase();
+      if(!/^[A-HJ-NP-Z2-9]{6}$/.test(code)){ err.textContent = 'הקוד צריך להיות 6 תווים, אותיות באנגלית ומספרים'; return; }
+      if(!online){ err.textContent = 'הצטרפות דורשת חיבור לאינטרנט'; return; }
+      btn.disabled = true; err.textContent = '';
+      try{
+        const r = await joinWithCode(code);
+        if(r.error){ err.textContent = r.error; btn.disabled = false; return; }
+        close(); location.hash = 'l-' + r.listId; snack(r.already ? 'כבר הצטרפת לרשימה הזו' : 'הצטרפת לרשימה');
+      }catch(e){ console.error(e); err.textContent = 'ההצטרפות נכשלה. נסו שוב.'; btn.disabled = false; }
+    };
+    btn.onclick = go; $('[data-cancel]', el).onclick = close;
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); go(); } });
+    setTimeout(() => inp.focus(), 60);
+  });
+}
+async function joinWithCode(code){
+  await authReady; let inv;
+  try{ inv = await Cloud.get(`invites/${code}`); }catch(e){ return { error:'לא הצלחנו לבדוק את הקוד. נסו שוב.' }; }
+  if(!inv) return { error:'הקוד לא נמצא. בדקו שהקלדתם נכון.' };
+  if(inv.expiresAt <= Cloud.now()) return { error:'תוקף הקוד פג. בקשו קוד חדש.' };
+  const listId = inv.listId;
+  if(listId in IDX) return { listId, already:true };
+  const orders = Object.values(IDX); const order = orders.length ? Math.max(...orders) + 1 : 0;
+  let member = false;
+  try{ await Cloud.get(`lists/${listId}/meta`); member = true; }catch(_){}
+  if(member){ await write({ [`users/${uid}/lists/${listId}`]: order }); return { listId, already:true }; }
+  await ensureName();
+  const me = { role:'member', joinedAt:Cloud.now(), inviteCode:code }; if(myName) me.name = myName;
+  await write({ [`lists/${listId}/members/${uid}`]: me, [`users/${uid}/lists/${listId}`]: order });
+  return { listId };
+}
+
+/* ================= legacy data check (stage 3a) ================= */
+async function readLegacy(){
+  if(!NativePrefs) return { error:'הבדיקה עובדת רק בתוך האפליקציה המותקנת.' };
+  try{
+    await NativePrefs.configure({ group:'TinyDB1' });
+    const { keys } = await NativePrefs.keys();
+    const raw = {};
+    for(const k of keys){ const { value } = await NativePrefs.get({ key:k }); raw[k] = value; }
+    return { keys:keys.slice().sort(), raw };
+  }catch(e){ return { error:'הקריאה נכשלה: ' + (e && e.message || e) }; }
+  finally{ try{ await NativePrefs.configure({ group:'CapacitorStorage' }); }catch(_){} }
+}
+function parseLegacy(raw){
+  const P = k => { if(!(k in raw)) return undefined; try{ return JSON.parse(raw[k]); }catch(_){ return raw[k]; } };
+  const arr = v => Array.isArray(v) ? v : [];
+  const tags = arr(P('listTags')), names = arr(P('listNames')), shared = arr(P('sharedListTags'));
+  const lists = tags.map((tag, i) => ({
+    tag, name: names[i] != null && names[i] !== '' ? String(names[i]) : 'רשימת קניות',
+    items: arr(P('itemsList_' + tag)), taken: arr(P('greenItemsList_' + tag)), shared: shared.includes(tag)
+  }));
+  return { sharedCode:P('sharedCode'), userStatus:P('userStatus'), sharedTags:shared, blockAds:P('blockAds'), endDate:P('endDate'),
+           oldUid:P('uid'), lists, listNamesCount:names.length };
+}
+async function buildDiag(){
+  app.innerHTML = `<header class="bar"><button class="icon-btn" id="back" aria-label="חזרה">${I.back}</button><h1>נתונים מהגרסה הישנה</h1></header>
+    <div class="diag" id="diagBody"><div class="loading">קורא את הנתונים…</div></div>`;
+  $('#back').onclick = () => { location.hash = ''; };
+  const res = await readLegacy(), body = $('#diagBody');
+  if(res.error){ body.innerHTML = `<p class="bad">${esc(res.error)}</p>`; return; }
+  if(!res.keys.length){ body.innerHTML = `<p class="bad">לא נמצאו נתונים מהגרסה הישנה במכשיר הזה.</p><p>אם הגרסה הישנה הייתה מותקנת כאן לפני העדכון, זה אומר שהנתונים שמורים במקום אחר, וצריך לבדוק לפני שממשיכים.</p>`; return; }
+  const d = parseLegacy(res.raw);
+  const fmt = v => v === undefined ? '—' : esc(typeof v === 'string' ? v : JSON.stringify(v));
+  body.innerHTML = `
+    <p class="ok">נמצאו ${res.keys.length} ערכים שמורים מהגרסה הישנה.</p>
+    <h2>סיכום</h2>
+    <div class="kv">
+      <b>מספר רשימות</b><span>${d.lists.length}</span>
+      <b>sharedCode</b><span>${fmt(d.sharedCode)}</span>
+      <b>userStatus</b><span>${fmt(d.userStatus)}</span>
+      <b>רשימות משותפות</b><span>${d.sharedTags.length}</span>
+      <b>blockAds</b><span>${fmt(d.blockAds)}</span>
+      <b>endDate</b><span>${fmt(d.endDate)}</span>
+    </div>
+    <h2>רשימות</h2>
+    ${d.lists.map(L => `<div class="card"><div class="t">${esc(L.name)}${L.shared ? ' (משותפת)' : ''}</div>
+      <div class="m">${L.items.length} פריטים לקנות, ${L.taken.length} נלקחו, מזהה ${esc(L.tag)}</div>
+      ${L.items.length ? `<div class="m">${L.items.slice(0, 6).map(esc).join(', ')}${L.items.length > 6 ? '…' : ''}</div>` : ''}</div>`).join('') || '<p>אין רשימות</p>'}
+    <div class="actions"><button class="btn primary" id="copyReport">העתקת הדוח המלא</button></div>
+    <h2>כל הערכים (${res.keys.length})</h2>
+    <pre>${res.keys.map(k => esc(k) + ' = ' + esc(String(res.raw[k]).slice(0, 400))).join('\n')}</pre>`;
+  $('#copyReport').onclick = async () => {
+    const ok = await copyText(JSON.stringify({ app:'shuki-3a', at:new Date().toISOString(), keys:res.keys, raw:res.raw }, null, 1));
+    snack(ok ? 'הדוח הועתק. אפשר להדביק אותו בצ׳אט.' : 'ההעתקה לא הצליחה');
+  };
+}
+
+/* ================= start ================= */
+setInterval(() => { listIds().forEach(purgeTaken); }, 60000);
+render();
+startSync();
+})();
+
+</script>
+</body>
+</html>
